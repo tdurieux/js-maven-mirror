@@ -28,29 +28,38 @@ app.get("*", (req, res) => {
     1,
     (mirror, callback) => {
       const uri = urljoin(mirror, req.path);
-      const mavenRequest = request
-        .get(uri)
-        .on("response", (mavenResponse) => {
-          if (mavenResponse.statusCode === 200) {
-            const passThroughResponse = new PassThrough();
-            mavenRequest.pipe(passThroughResponse);
+      try {
+        const mavenRequest = request
+          .get(uri)
+          .on("response", (mavenResponse) => {
+            if (mavenResponse.statusCode === 200) {
+              try {
+                const passThroughResponse = new PassThrough();
+                mavenRequest.pipe(passThroughResponse);
 
-            if (isAccepted) {
-              const passThroughFile = new PassThrough();
-              mavenRequest.pipe(passThroughFile);
-              passThroughFile.pipe(
-                fs.createWriteStream(path.join(cachePath, req.path))
-              );
+                if (isAccepted) {
+                  const passThroughFile = new PassThrough();
+                  mavenRequest.pipe(passThroughFile);
+                  passThroughFile.pipe(
+                    fs.createWriteStream(path.join(cachePath, req.path))
+                  );
+                }
+
+                passThroughResponse.pipe(res);
+                return callback(null, true);
+              } catch (error) {
+                console.error(error);
+              }
             }
-
-            passThroughResponse.pipe(res);
-            return callback(null, true);
-          }
-          callback(null, false);
-        })
-        .on("error", () => {
-          callback(null, false);
-        });
+            callback(null, false);
+          })
+          .on("error", () => {
+            callback(null, false);
+          });
+      } catch (error) {
+        console.error(error);
+        callback(null, false);
+      }
     },
     (err, value) => {
       if (value === undefined) {
