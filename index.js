@@ -40,6 +40,9 @@ app.get("*", (req, res) => {
                 if (isAccepted) {
                   const passThroughFile = new PassThrough();
                   mavenRequest.pipe(passThroughFile);
+                  fs.mkdirSync(path.dirname(path.join(cachePath, req.path)), {
+                    recursive: true,
+                  });
                   passThroughFile.pipe(
                     fs.createWriteStream(path.join(cachePath, req.path))
                   );
