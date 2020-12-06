@@ -18,7 +18,8 @@ WORKDIR /home/runner/
 COPY package*.json ./
 
 RUN npm install
+RUN npm install forever
 COPY index.js .
 COPY mirrors.js .
 
-ENTRYPOINT [ "node", "index.js", "/data/" ]
+ENTRYPOINT [ "./node_modules/.bin/forever", "index.js", "/data/" ]
