@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  js-maven-mirror:
+    build: .
+    restart: always
+    command: node index.js /data/
+    container_name: js-maven-mirror
+    volumes:
+      - /Users/tdurieux/.m2/repository:/data
+    ports:
+      - 5956:5956
